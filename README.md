@@ -50,7 +50,7 @@ cs:update_servers(my_new_servers)
 svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it stays the same,
                        -- as we only update the 127.0.0.4.
 
--- what's more, consistence is maintained even servers number are changed! eg.
+-- what's more, consistence is maintained even the number of servers changes! eg.
 local my_less_servers = {
     { "127.0.0.2", 80 },
     { "127.0.0.3", 80 }
@@ -61,7 +61,7 @@ svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it stays the same,
                        -- 127.0.0.3 or 127.0.0.4
 
 cs:update_servers(my_new_servers)
-svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it hash 66% chance to stay the same
+svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it has 66% chance to stay the same
 
 ```
 
