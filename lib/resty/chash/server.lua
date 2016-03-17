@@ -1,8 +1,5 @@
 local jchash = require "resty.chash.jchash"
 
-local _M = {}
-local mt = { __index = _M }
-
 local function svname(server)
     -- @server: {addr, port}
     -- @return: concat the addr and port with ":" as seperator
@@ -17,21 +14,6 @@ local function init_name2id(servers)
         map[ svname(s) ] = id
     end
     return map
-end
-
-function _M.new(servers)
-    local name2id = init_name2id(servers)
-    local ins = { servers = servers, name2id = name2id, size=#servers }
-    return setmetatable(ins, mt)
-end
-
-
--- instance methods
-
-function _M.lookup(self, key)
-    -- @return: tuple {addr, port}
-    local id = jchash.hash_short_str(key, self.size)
-    return self.servers[id]
 end
 
 local function update_name2id(old_servers, new_servers)
@@ -84,7 +66,26 @@ local function update_name2id(old_servers, new_servers)
     return new_name2id
 end
 
-function _M.replace_servers(self, new_servers)
+
+local _M = {}
+local mt = { __index = _M }
+
+function _M.new(servers)
+    local name2id = init_name2id(servers)
+    local ins = { servers = servers, name2id = name2id, size=#servers }
+    return setmetatable(ins, mt)
+end
+
+-- instance methods
+
+function _M.lookup(self, key)
+    -- @key: user defined string, eg. uri
+    -- @return: tuple {addr, port}
+    local id = jchash.hash_short_str(key, self.size)
+    return self.servers[id]
+end
+
+function _M.update_servers(self, new_servers)
     -- @new_servers: remove all old servers, and use the new servers
     --               but we would keep the server whose name is not changed
     --               in the same `id` slot, so consistence is maintained.
