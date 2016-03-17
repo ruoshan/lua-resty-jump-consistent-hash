@@ -21,5 +21,5 @@ local id = jchash.hash("random key", buckets)
 ```
 make test
 ./test
-luajit-2.1.0-alpha
+luajit-2.1.0-alpha test_jchash.lua
 ```
