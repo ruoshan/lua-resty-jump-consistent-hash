@@ -1,5 +1,9 @@
 ## Jump Consisten Hash for luajit
-a simple implementation of [this paper](http://arxiv.org/pdf/1406.2294.pdf).
+A simple implementation of [this paper](http://arxiv.org/pdf/1406.2294.pdf).
+
+## Features
+- small memory footprint and fast
+- consistence is maintained through servers' updating
 
 ## Installation
 ```
@@ -10,7 +14,6 @@ make PREFIX=/usr/local/openresty install
 ## Usage
 
 * you can use the basic jchash module to do consisten-hash
-
 ```
 local jchash = require "resty.chash.jchash"
 
@@ -19,7 +22,6 @@ local id = jchash.hash_short_str("random key", buckets)
 ```
 
 * or you can use the wrapping module `resty.chash.server` to consistent-hash a list of servers
-
 ```
 local jchash_server = require "resty.chash.server"
 
@@ -62,6 +64,9 @@ cs:update_servers(my_new_servers)
 svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it hash 66% chance to stay the same
 
 ```
+
+## Todo
+- weight for the servers list
 
 ## Test
 > TODO
