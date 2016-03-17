@@ -33,18 +33,18 @@ local key = "asdfghhhhh"
 
 print(cs:lookup(key)[1])
 
-cs:replace_servers(servers2)
+cs:update_servers(servers2)
 
 print(cs:lookup(key)[1])
 
-cs:replace_servers(servers3)
+cs:update_servers(servers3)
 
 print(cs:lookup(key)[1])
 
-cs:replace_servers(servers4)
+cs:update_servers(servers4)
 
 print(cs:lookup(key)[1])
 
-cs:replace_servers(servers3)
+cs:update_servers(servers3)
 
 print(cs:lookup(key)[1])
