@@ -13,7 +13,7 @@ make PREFIX=/usr/local/openresty install
 
 ## Usage
 
-* you can use the basic jchash module to do consisten-hash
+* you can use the basic jchash module to do consistent-hash
 ```
 local jchash = require "resty.chash.jchash"
 
@@ -73,6 +73,4 @@ svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it has 66% chance to
 
 ```
 make test
-./test
-luajit-2.1.0-alpha test_jchash.lua
 ```
