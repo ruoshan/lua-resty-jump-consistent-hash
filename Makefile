@@ -1,6 +1,7 @@
 PREFIX ?= /usr/local/openresty
 LUA_LIB_DIR ?=$(PREFIX)/lualib
 CFLAGS := -Wall -O3 -g -fPIC
+INSTALL ?= install
 
 all: so
 
