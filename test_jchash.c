@@ -1,6 +1,6 @@
 #include "jchash.h"
 
-#define NKey 1000
+#define NKey 10000
 #define NBucket 8
 
 int test() {

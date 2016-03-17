@@ -14,6 +14,9 @@ jchash.o: jchash.c
 
 test: so
 	$(CC) test_jchash.c -l jchash -L./ -o test
+	./test
+	resty test_jchash.lua
+	resty test_server.lua
 
 
 .PHONY:
@@ -21,5 +24,6 @@ clean:
 	@rm -vf *.o test *.so
 
 install:
-	$(INSTALL) -m0644 lib/resty/jchash.lua $(DESTDIR)$(LUA_LIB_DIR)/resty
+	$(INSTALL) -d $(DESTDIR)$(LUA_LIB_DIR)/resty/chash
+	$(INSTALL) -m0644 lib/resty/chash/*.lua $(DESTDIR)$(LUA_LIB_DIR)/resty/chash
 	$(INSTALL) libjchash.so $(DESTDIR)$(LUA_LIB_DIR)/libjchash.so
