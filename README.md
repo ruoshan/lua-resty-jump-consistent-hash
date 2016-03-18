@@ -26,7 +26,7 @@ local id = jchash.hash_short_str("random key", buckets)
 local jchash_server = require "resty.chash.server"
 
 local my_servers = {
-    { "127.0.0.1", 80 },
+    { "127.0.0.1", 80, 1},   -- {addr, port, weight} weight can be left out if it's 1
     { "127.0.0.2", 80 },
     { "127.0.0.3", 80 }
 }
@@ -66,7 +66,7 @@ svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it has 66% chance to
 ```
 
 ## Todo
-- weight for the servers list
+- ~~weight for the servers list~~ [done]
 
 ## Test
 please checkout the `test_server.lua` file, it demonstrates the correct hash distribution

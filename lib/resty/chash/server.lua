@@ -5,84 +5,89 @@ if not ok then
     new_table = function (narr, nrec) return {} end
 end
 
-local function deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
-        end
-    else
-        copy = orig
-    end
-    return copy
-end
-
 local function svname(server)
-    -- @server: {addr, port}
+    -- @server: {addr, port, id}
     -- @return: concat the addr and port with ":" as seperator
-    return tostring(server[1] .. ":" .. tostring(server[2]))
+    return server[1] .. ":" .. tostring(server[2]) .. "#" .. tostring(server[3])
 end
 
-local function init_name2id(servers)
-    -- map server name to ID
+local function init_name2index(servers)
+    -- map server name to index
     local map = {}
-    for id, s in ipairs(servers) do
+    for index, s in ipairs(servers) do
         -- name is just the concat of addr and port
-        map[ svname(s) ] = id
+        map[ svname(s) ] = index
     end
     return map
 end
 
-local function update_name2id(old_servers, new_servers)
-    -- new servers may have some servers of the same name in the old ones.
-    -- we could assign the same id(if in range) to the server of same name,
-    -- and as to new servers whose name are new will be assigned to
-    -- one of the IDs there're available
+local function expand_servers(servers)
+    -- expand servers list of {addr, port, weight} into a list of {addr, port, id}
+    local total_weight = 0
+    for _, s in ipairs(servers) do
+        total_weight = total_weight + (s[3] or 1)
+    end
 
-    local old_name2id = init_name2id(old_servers)
-    local new_name2id = init_name2id(new_servers)
-    local new_size = #new_servers  -- new_size is also the maxmuim ID
+    local expanded_servers = new_table(total_weight, 0)
+    local weight
+    for _, s in ipairs(servers) do
+        weight = s[3] or 1
+        for id = 1, weight do
+            expanded_servers[#expanded_servers + 1] = {s[1], s[2], id}
+        end
+    end
+    assert(#expanded_servers == total_weight, "expand_servers size not match")
+    return expanded_servers
+end
+
+local function update_name2index(old_servers, new_servers)
+    -- new servers may have some servers of the same name in the old ones.
+    -- we could assign the same index(if in range) to the server of same name,
+    -- and as to new servers whose name are new will be assigned to indexs that're
+    -- not occupied
+
+    local old_name2index = init_name2index(old_servers)
+    local new_name2index = init_name2index(new_servers)
+    local new_size = #new_servers  -- new_size is also the maxmuim index
     local old_size = #old_servers
 
-    local unused_ids = {}
+    local unused_indexs = {}
 
-    for old_id, old_sv in ipairs(old_servers) do
-        if old_id <= new_size then
+    for old_index, old_sv in ipairs(old_servers) do
+        if old_index <= new_size then
             local old_sv_name = svname(old_sv)
-            if new_name2id[ old_sv_name ] then
-                -- restore the old_id
-                new_name2id[ old_sv_name ] = old_id
+            if new_name2index[ old_sv_name ] then
+                -- restore the old_index
+                new_name2index[ old_sv_name ] = old_index
             else
-                -- old_id can be recycled
-                unused_ids[#unused_ids + 1] = old_id
+                -- old_index can be recycled
+                unused_indexs[#unused_indexs + 1] = old_index
             end
         else
-            -- ID that exceed maxmium ID is of no use, we should mark it nil.
-            -- the next next loop (assigning unused_ids) will make use of this mark
-            old_name2id[ svname(old_sv) ] = nil
+            -- index that exceed maxmium index is of no use, we should mark it nil.
+            -- the next next loop (assigning unused_indexs) will make use of this mark
+            old_name2index[ svname(old_sv) ] = nil
         end
     end
 
     for i = old_size + 1, new_size do  -- only loop when old_size < new_size
-        unused_ids[#unused_ids + 1] = i
+        unused_indexs[#unused_indexs + 1] = i
     end
 
-    -- assign the unused_ids to the real new servers
+    -- assign the unused_indexs to the real new servers
     local index = 1
     for _, new_sv in ipairs(new_servers) do
         local new_sv_name = svname(new_sv)
-        if not old_name2id[ new_sv_name ] then
-            -- it's a new server, or an old server whose old ID is too big
-            assert(index <= #unused_ids, "no enough IDs for new server")
-            new_name2id[ new_sv_name ] = unused_ids[index]
+        if not old_name2index[ new_sv_name ] then
+            -- it's a new server, or an old server whose old index is too big
+            assert(index <= #unused_indexs, "no enough indexs for new server")
+            new_name2index[ new_sv_name ] = unused_indexs[index]
             index = index + 1
         end
     end
-    assert(index == #unused_ids + 1, "recycled IDs are not exhausted")
+    assert(index == #unused_indexs + 1, "recycled indexs are not exhausted")
 
-    return new_name2id
+    return new_name2index
 end
 
 
@@ -93,18 +98,17 @@ function _M.new(servers)
     if not servers then
         return
     end
-    local name2id = init_name2id(servers)
-    local ins = { servers = deepcopy(servers), name2id = name2id, size=#servers }
-    return setmetatable(ins, mt)
+    return setmetatable({servers = expand_servers(servers)}, mt)
 end
 
 -- instance methods
 
 function _M.lookup(self, key)
     -- @key: user defined string, eg. uri
-    -- @return: tuple {addr, port}
-    local id = jchash.hash_short_str(key, self.size)
-    return self.servers[id]
+    -- @return: {addr, port, id}
+    -- the `id` is a number in [1, weight], to identify server of same addr and port,
+    local index = jchash.hash_short_str(key, #self.servers)
+    return self.servers[index]
 end
 
 function _M.update_servers(self, new_servers)
@@ -115,27 +119,25 @@ function _M.update_servers(self, new_servers)
         return
     end
     local old_servers = self.servers
-    local new_servers = deepcopy(new_servers)
-    self.size = #new_servers
-    self.name2id = update_name2id(old_servers, new_servers)
-    self.servers = new_table(self.size, 0)
+    local new_servers = expand_servers(new_servers)
+    local name2index = update_name2index(old_servers, new_servers)
+    self.servers = new_table(#new_servers, 0)
 
     for _, s in ipairs(new_servers) do
-        self.servers[self.name2id[ svname(s) ]] = s
+        self.servers[name2index[ svname(s) ]] = s
     end
 end
 
 function _M.debug(self)
-    print("*****************")
-    print("* size: " .. tostring(self.size))
-    print("* servers: ")
-    for _, s in ipairs(self.servers) do
-        print(svname(s))
+    print("* Instance Info *")
+    print("* size: " .. tostring(#self.servers))
+    print("* servers -> id ")
+    for id, s in ipairs(self.servers) do
+        print(svname(s) .. " -> " .. tostring(id))
     end
-    print("* name2id map:")
-    for k, v in pairs(self.name2id) do
-        print(k .. " = " .. v)
-    end
+    print("\n")
 end
+
+_M._VERSION = "0.1.0"
 
 return _M
