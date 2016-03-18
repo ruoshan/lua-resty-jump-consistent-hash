@@ -23,7 +23,7 @@ test: so
 clean:
 	@rm -vf *.o test *.so
 
-install:
+install: so
 	$(INSTALL) -d $(DESTDIR)$(LUA_LIB_DIR)/resty/chash
 	$(INSTALL) -m0644 lib/resty/chash/*.lua $(DESTDIR)$(LUA_LIB_DIR)/resty/chash
 	$(INSTALL) libjchash.so $(DESTDIR)$(LUA_LIB_DIR)/libjchash.so
