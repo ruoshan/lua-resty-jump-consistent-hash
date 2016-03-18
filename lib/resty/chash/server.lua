@@ -5,7 +5,7 @@ if not ok then
     new_table = function (narr, nrec) return {} end
 end
 
-function deepcopy(orig)
+local function deepcopy(orig)
     local orig_type = type(orig)
     local copy
     if orig_type == 'table' then

@@ -54,7 +54,7 @@ local function test_update_servers(old, new)
         end
         --assert(sv[1] == servers1[2][1], "failed: " .. sv[1] .. " != " .. servers1[2][1])
     end
-    print("hit=", hit, "mis=", mis)
+    print("hit=", hit, ", mis=", mis)
     return hit, mis
 end
 
