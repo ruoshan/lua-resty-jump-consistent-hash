@@ -1,5 +1,10 @@
 local jchash = require "resty.chash.jchash"
 
+local ok, new_table = pcall(require, "table.new")
+if not ok then
+    new_table = function (narr, nrec) return {} end
+end
+
 function deepcopy(orig)
     local orig_type = type(orig)
     local copy
@@ -85,6 +90,9 @@ local _M = {}
 local mt = { __index = _M }
 
 function _M.new(servers)
+    if not servers then
+        return
+    end
     local name2id = init_name2id(servers)
     local ins = { servers = deepcopy(servers), name2id = name2id, size=#servers }
     return setmetatable(ins, mt)
@@ -103,10 +111,31 @@ function _M.update_servers(self, new_servers)
     -- @new_servers: remove all old servers, and use the new servers
     --               but we would keep the server whose name is not changed
     --               in the same `id` slot, so consistence is maintained.
+    if not new_servers then
+        return
+    end
     local old_servers = self.servers
-    self.servers = deepcopy(new_servers)
+    local new_servers = deepcopy(new_servers)
     self.size = #new_servers
-    self.name2id = update_name2id(old_servers, self.servers)
+    self.name2id = update_name2id(old_servers, new_servers)
+    self.servers = new_table(self.size, 0)
+
+    for _, s in ipairs(new_servers) do
+        self.servers[self.name2id[ svname(s) ]] = s
+    end
+end
+
+function _M.debug(self)
+    print("*****************")
+    print("* size: " .. tostring(self.size))
+    print("* servers: ")
+    for _, s in ipairs(self.servers) do
+        print(svname(s))
+    end
+    print("* name2id map:")
+    for k, v in pairs(self.name2id) do
+        print(k .. " = " .. v)
+    end
 end
 
 return _M
