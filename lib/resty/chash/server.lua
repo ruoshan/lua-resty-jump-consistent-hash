@@ -1,5 +1,19 @@
 local jchash = require "resty.chash.jchash"
 
+function deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[deepcopy(orig_key)] = deepcopy(orig_value)
+        end
+    else
+        copy = orig
+    end
+    return copy
+end
+
 local function svname(server)
     -- @server: {addr, port}
     -- @return: concat the addr and port with ":" as seperator
@@ -72,7 +86,7 @@ local mt = { __index = _M }
 
 function _M.new(servers)
     local name2id = init_name2id(servers)
-    local ins = { servers = servers, name2id = name2id, size=#servers }
+    local ins = { servers = deepcopy(servers), name2id = name2id, size=#servers }
     return setmetatable(ins, mt)
 end
 
@@ -90,9 +104,9 @@ function _M.update_servers(self, new_servers)
     --               but we would keep the server whose name is not changed
     --               in the same `id` slot, so consistence is maintained.
     local old_servers = self.servers
-    self.servers = new_servers
+    self.servers = deepcopy(new_servers)
     self.size = #new_servers
-    self.name2id = update_name2id(old_servers, new_servers)
+    self.name2id = update_name2id(old_servers, self.servers)
 end
 
 return _M
