@@ -138,6 +138,29 @@ function _M.debug(self)
     print("\n")
 end
 
+function _M.dump(self)
+    -- @return: deepcopy a self.servers
+    -- this can be use to save the server list to a file or something
+    -- and restore it back some time later. eg. nginx restart/reload
+    --
+    -- please NOTE: the data being dumped is not the same as the data we
+    -- use to do _M.new or _M.update_servers, though it looks the same, the third
+    -- field in the {addr, port, id} is an `id`, NOT a `weight`
+    local servers = {}
+    for index, sv in ipairs(self.servers) do
+        servers[index] = {sv[1], sv[2], sv[3]} -- {addr, port, id}
+    end
+    return servers
+end
+
+function _M.restore(self, servers)
+    -- restore servers from dump (deepcopy the servers)
+    self.servers = {}
+    for index, sv in ipairs(servers) do
+        self.servers[index] = {sv[1], sv[2], sv[3]}
+    end
+end
+
 _M._VERSION = "0.1.0"
 
 return _M
