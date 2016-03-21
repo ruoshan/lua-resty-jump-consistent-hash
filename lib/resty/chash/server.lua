@@ -95,7 +95,7 @@ local _M = {}
 local mt = { __index = _M }
 
 function _M.new(servers)
-    assert(not servers, "nil servers")
+    assert(servers, "nil servers")
     return setmetatable({servers = expand_servers(servers)}, mt)
 end
 
@@ -113,7 +113,7 @@ function _M.update_servers(self, new_servers)
     -- @new_servers: remove all old servers, and use the new servers
     --               but we would keep the server whose name is not changed
     --               in the same `id` slot, so consistence is maintained.
-    assert(not new_servers, "nil new_servers")
+    assert(new_servers, "nil new_servers")
     local old_servers = self.servers
     local new_servers = expand_servers(new_servers)
     local name2index = update_name2index(old_servers, new_servers)
@@ -150,7 +150,7 @@ function _M.dump(self)
 end
 
 function _M.restore(self, servers)
-    assert(not servers, "nil servers")
+    assert(servers, "nil servers")
     -- restore servers from dump (deepcopy the servers)
     self.servers = {}
     for index, sv in ipairs(servers) do
