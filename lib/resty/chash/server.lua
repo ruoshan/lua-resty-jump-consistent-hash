@@ -15,7 +15,7 @@ local function init_name2index(servers)
     -- map server name to index
     local map = {}
     for index, s in ipairs(servers) do
-        -- name is just the concat of addr and port
+        -- name is just the concat of addr , port and inner id
         map[ svname(s) ] = index
     end
     return map
@@ -105,6 +105,9 @@ function _M.lookup(self, key)
     -- @key: user defined string, eg. uri
     -- @return: {addr, port, id}
     -- the `id` is a number in [1, weight], to identify server of same addr and port,
+    if #self.servers == 0 then
+        return nil
+    end
     local index = jchash.hash_short_str(key, #self.servers)
     return self.servers[index]
 end
