@@ -8,7 +8,7 @@ end
 local function svname(server)
     -- @server: {addr, port, id}
     -- @return: concat the addr and port with ":" as seperator
-    return server[1] .. ":" .. tostring(server[2]) .. "#" .. tostring(server[3])
+    return string.format("%s:%s#%s", tostring(server[1]), tostring(server[2]), tostring(server[3]))
 end
 
 local function init_name2index(servers)
@@ -161,6 +161,6 @@ function _M.restore(self, servers)
     end
 end
 
-_M._VERSION = "0.1.0"
+_M._VERSION = "0.1.1"
 
 return _M
