@@ -160,6 +160,6 @@ function _M.restore(self, servers)
     end
 end
 
-_M._VERSION = "0.1.1"
+_M._VERSION = "0.1.2"
 
 return _M
