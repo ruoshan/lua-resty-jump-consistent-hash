@@ -85,7 +85,6 @@ local function update_name2index(old_servers, new_servers)
             index = index + 1
         end
     end
-    assert(index == #unused_indexs + 1, "recycled indexs are not exhausted")
 
     return new_name2index
 end
