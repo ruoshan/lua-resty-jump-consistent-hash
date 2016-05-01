@@ -31,7 +31,7 @@ local my_servers = {
     { "127.0.0.3", 80 }
 }
 
-local cs = jchash_server.new(my_servers)
+local cs, err = jchash_server.new(my_servers)
 local uri = ngx.var.uri
 local svr = cs:lookup(uri)
 local addr = svr[1]
@@ -67,10 +67,9 @@ svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it has 66% chance to
 
 ## Todo
 - ~~weight for the servers list~~ [done]
+- ~~Test::Nginx~~ [done]
 
 ## Test
-please checkout the `test_server.lua` file, it demonstrates the correct hash distribution
-that I intend to maintain after updating servers
 
 ```
 make test

@@ -3,27 +3,23 @@ LUA_LIB_DIR ?=$(PREFIX)/lualib
 CFLAGS := -Wall -O3 -g -fPIC
 INSTALL ?= install
 
-all: so
+all: libjchash.so
 
-so: jchash.o
+libjchash.so: jchash.o
 	$(CC) $(CFLAGS) -shared -o libjchash.so jchash.o
 
 jchash.o: jchash.c
 	$(CC) $(CFLAGS) -c jchash.c
 
-
-test: so
-	$(CC) test_jchash.c -l jchash -L./ -o test
-	./test
-	resty test_jchash.lua
-	resty test_server.lua
+test: libjchash.so
+	prove t/*.t
 
 
 .PHONY:
 clean:
 	@rm -vf *.o test *.so
 
-install: so
+install: all
 	$(INSTALL) -d $(DESTDIR)$(LUA_LIB_DIR)/resty/chash
 	$(INSTALL) -m0644 lib/resty/chash/*.lua $(DESTDIR)$(LUA_LIB_DIR)/resty/chash
 	$(INSTALL) libjchash.so $(DESTDIR)$(LUA_LIB_DIR)/libjchash.so
