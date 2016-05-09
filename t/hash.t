@@ -23,7 +23,7 @@ run_tests();
 
 __DATA__
 
-=== TEST 0: hash func
+=== TEST 1: hash func
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
@@ -56,7 +56,9 @@ GET /
 --- response_body
 ok
 
-=== TEST 0: hash distribution
+
+
+=== TEST 2: hash distribution
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
@@ -85,7 +87,9 @@ GET /
 --- response_body
 ok
 
-=== TEST 0: rehash distribution
+
+
+=== TEST 3: rehash distribution
 --- http_config eval: $::HttpConfig
 --- config
         location = / {

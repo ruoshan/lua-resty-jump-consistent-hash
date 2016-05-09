@@ -23,7 +23,7 @@ run_tests();
 
 __DATA__
 
-=== TEST 0: new chash servers
+=== TEST 1: new chash servers
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
@@ -57,6 +57,11 @@ __DATA__
                 if host ~= "127.0.0.1" or port ~= 8081 then
                     return ngx.say("nok 5")
                 end
+
+                local r = servers:lookup(nil)
+                if r then
+                    return ngx.say("nok 6")
+                end
                 ngx.say("ok")
             }
         }
@@ -65,7 +70,9 @@ GET /
 --- response_body
 ok
 
-=== TEST 0: update chash servers
+
+
+=== TEST 2: update chash servers
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
@@ -94,7 +101,9 @@ GET /
 --- response_body
 ok
 
-=== TEST 0: distribution: same size
+
+
+=== TEST 3: distribution: same size
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
@@ -145,7 +154,9 @@ GET /
 --- response_body
 ok
 
-=== TEST 0: distribution: decrease size
+
+
+=== TEST 4: distribution: decrease size
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
@@ -195,7 +206,9 @@ GET /
 --- response_body
 ok
 
-=== TEST 0: distribution: increase size
+
+
+=== TEST 5: distribution: increase size
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
@@ -249,7 +262,9 @@ GET /
 --- response_body
 ok
 
-=== TEST 0: distribution: increase size using weight
+
+
+=== TEST 6: distribution: increase size using weight
 --- http_config eval: $::HttpConfig
 --- config
         location = / {
