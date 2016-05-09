@@ -125,7 +125,7 @@ function _M.lookup(self, key)  --> server/nil
     -- @key: user defined string, eg. uri
     -- @return: {addr, port, id}
     -- the `id` is a number in [1, weight], to identify server of same addr and port,
-    if #self.servers == 0 then
+    if #self.servers == 0 or not key then
         return nil
     end
     local index = jchash.hash_short_str(key, #self.servers)
