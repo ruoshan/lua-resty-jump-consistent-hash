@@ -58,7 +58,7 @@ local my_less_servers = {
 cs:update_servers(my_less_servers)
 svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it stays the same,
                        -- if the server was 127.0.0.4, then it has 50% chance to be
-                       -- 127.0.0.3 or 127.0.0.4
+                       -- 127.0.0.2 or 127.0.0.3
 
 cs:update_servers(my_new_servers)
 svr = cs:lookup(uri)   -- if the server was 127.0.0.2, then it has 66% chance to stay the same
